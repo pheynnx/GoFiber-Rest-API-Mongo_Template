@@ -31,6 +31,6 @@ func main() {
 
 	app.Static("/", "./frontend/build")
 
-	fmt.Println("Server running on port 3000")
+	fmt.Println("Server running on port 5010")
 	app.Listen(5010)
 }
