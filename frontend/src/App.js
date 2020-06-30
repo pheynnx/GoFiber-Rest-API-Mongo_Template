@@ -1,22 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import './App.css';
 
-import axios from 'axios';
+import { useRecoilState, useRecoilValue } from "recoil";
+import { databaseState, count } from './recoil';
+
 
 const App = () => {
-  const getDatabase = async () => {
-    try {
-      const context = await axios.get('/api/v1/users');
-      console.log(context.data.data);
-    } catch (error) {}
-  };
+  const [countState, setCount] = useRecoilState(count);
 
-  useEffect(() => {
-    getDatabase();
-  }, []);
+  const data = useRecoilValue(databaseState);
+
   return (
     <div className="App">
       <header className="App-header"></header>
+      {countState}
+      <button onClick={() => setCount(c => c + 1)}>+ 1</button>
+      <br></br>
+      {data.Username}
     </div>
   );
 };

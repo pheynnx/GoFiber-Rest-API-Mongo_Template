@@ -3,34 +3,31 @@ package main
 import (
 	"fmt"
 
+	"ericarthurc/fiberAPI/database"
+	"ericarthurc/fiberAPI/router"
+
 	"github.com/gofiber/cors"
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/fiber/middleware"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
-
-type Database struct {
-	Name     string
-	Password string
-	Age      uint8
-}
 
 func main() {
 	app := fiber.New()
 
-	app.Use(middleware.Logger())
+	// Connect to database
+	database.ConnectDB()
 
+	// Middleware
+	app.Use(middleware.Logger())
 	app.Use(cors.New())
 
-	app.Get("/api/v1/users", func(c *fiber.Ctx) {
-		data := Database{"Eric", "Tacobell", 24}
-		c.JSON(&fiber.Map{
-			"success": true,
-			"data":    data,
-		})
-	})
+	router.UserRoutes(app)
 
 	app.Static("/", "./frontend/build")
 
 	fmt.Println("Server running on port 5010")
 	app.Listen(5010)
+
+	defer database.DB.Close()
 }

@@ -3,10 +3,14 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
 
+import { RecoilRoot } from "recoil";
+
 ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
+  <RecoilRoot>
+    <React.Suspense fallback={<div>Loading...</div>}>
+      <App />
+    </React.Suspense>
+  </RecoilRoot>,
   document.getElementById('root')
 );
 
