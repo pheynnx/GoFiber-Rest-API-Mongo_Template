@@ -10,3 +10,8 @@ type User struct {
 	Username string `gorm:"unique"`
 	Password string
 }
+
+// func (u *User) BeforeUpdate() (err error) {
+// 	fmt.Println(u)
+// 	return
+// }

@@ -52,6 +52,25 @@ func CreateUser(c *fiber.Ctx) {
 
 // UpdateUser update a user
 func UpdateUser(c *fiber.Ctx) {
+	id := c.Params("id")
+	db := database.DB
+
+	updatedUser := new(models.User)
+	if err := c.BodyParser(updatedUser); err != nil {
+		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+		return
+	}
+
+	var foundUser models.User
+	if err := db.First(&foundUser, id).Error; err != nil {
+		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+		return
+	}
+
+	if err := db.Model(&foundUser).Select("Username", "Password").Updates(updatedUser).Error; err != nil {
+		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+		return
+	}
 
 }
 
