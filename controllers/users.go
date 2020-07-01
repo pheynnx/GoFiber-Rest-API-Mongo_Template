@@ -50,8 +50,9 @@ func CreateUser(c *fiber.Ctx) {
 
 }
 
+// UpdateUser update a user
 func UpdateUser(c *fiber.Ctx) {
-	db
+
 }
 
 // DeleteUser deletes user by id
