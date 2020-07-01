@@ -13,10 +13,15 @@ import (
 )
 
 func main() {
-	app := fiber.New()
-
 	// Connect to database
 	database.ConnectDB()
+
+	app := fiber.New(&fiber.Settings{
+		// Prefork:       true,
+		CaseSensitive: true,
+		StrictRouting: true,
+		ServerHeader:  "Fiber",
+	})
 
 	// Middleware
 	app.Use(middleware.Logger())

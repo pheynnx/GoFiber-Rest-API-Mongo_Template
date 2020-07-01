@@ -23,6 +23,15 @@ func GetUsers(c *fiber.Ctx) {
 
 // GetUser get user by id
 func GetUser(c *fiber.Ctx) {
+	id := c.Params("id")
+	db := database.DB
+	var user models.User
+	if err := db.Find(&user, id).Error; err != nil {
+		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+		return
+
+	}
+	c.JSON(fiber.Map{"success": true, "data": user})
 }
 
 // CreateUser create user
@@ -39,4 +48,25 @@ func CreateUser(c *fiber.Ctx) {
 	}
 	c.JSON(fiber.Map{"success": true, "data": user})
 
+}
+
+func UpdateUser(c *fiber.Ctx) {
+	db
+}
+
+// DeleteUser deletes user by id
+func DeleteUser(c *fiber.Ctx) {
+	id := c.Params("id")
+	db := database.DB
+	var user models.User
+	if err := db.First(&user, id).Error; err != nil {
+		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+		return
+	}
+
+	if err := db.Delete(&user).Error; err != nil {
+		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+		return
+	}
+	c.JSON(fiber.Map{"success": true})
 }
