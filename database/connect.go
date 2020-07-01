@@ -3,6 +3,7 @@ package database
 import (
 	"ericarthurc/fiberAPI/models"
 	"fmt"
+	"os"
 
 	"github.com/jinzhu/gorm"
 )
@@ -13,7 +14,7 @@ var DB *gorm.DB
 // ConnectDB connect to database
 func ConnectDB() {
 	var err error
-	DB, err = gorm.Open("sqlite3", "./config/db.sqlite3")
+	DB, err = gorm.Open("sqlite3", os.Getenv("DATABASE"))
 	if err != nil {
 		panic("failed to connect database")
 	}

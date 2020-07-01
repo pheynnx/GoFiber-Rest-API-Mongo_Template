@@ -10,6 +10,7 @@ require (
 	github.com/gofiber/fiber v1.12.2
 	github.com/imdario/mergo v0.3.9 // indirect
 	github.com/jinzhu/gorm v1.9.14
+	github.com/joho/godotenv v1.3.0 // indirect
 	github.com/pelletier/go-toml v1.8.0 // indirect
 	golang.org/x/sys v0.0.0-20200625212154-ddb9806d33ae // indirect
 )

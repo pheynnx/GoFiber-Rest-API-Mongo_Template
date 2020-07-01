@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"ericarthurc/fiberAPI/database"
 	"ericarthurc/fiberAPI/router"
@@ -10,9 +11,13 @@ import (
 	"github.com/gofiber/fiber"
 	"github.com/gofiber/fiber/middleware"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	// Load .env
+	godotenv.Load("./config/config.env")
+
 	// Connect to database
 	database.ConnectDB()
 
@@ -31,8 +36,8 @@ func main() {
 
 	app.Static("/", "./frontend/build")
 
-	fmt.Println("Server running on port 5010")
-	app.Listen(5010)
+	fmt.Printf("Server running on port %v\n", os.Getenv("PORT"))
+	app.Listen(os.Getenv("PORT"))
 
 	defer database.DB.Close()
 }
