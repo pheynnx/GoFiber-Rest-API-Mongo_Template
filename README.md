@@ -1,4 +1,15 @@
 # Fiber_React-DEV
 
-Full stack proof of concept Golang backend with React frontend
-Rest API
+Proof of concept Golang Rest API
+
+Tools:
+
+- Fiber
+- Gorm
+- Ready for full stack api
+
+Environmental Variables:
+
+- ./config/config.env
+- PORT=
+- DATABASE=
