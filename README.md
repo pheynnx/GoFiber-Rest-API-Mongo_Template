@@ -19,7 +19,6 @@ air
 
 - Fiber
 - Gorm
-- Ready for full stack api
 
 ## Environmental Variables:
 
