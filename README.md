@@ -2,7 +2,7 @@
 
 ## Start:
 
-- Setup environmental variables
+#### Setup environmental variables
 
 ```bash
 go run server.go
