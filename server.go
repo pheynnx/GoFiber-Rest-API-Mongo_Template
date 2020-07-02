@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"ericarthurc/fiberAPI/database"
-	"ericarthurc/fiberAPI/router"
+	"ericarthurc/fiberAPI/routers"
 
 	"github.com/gofiber/cors"
 	"github.com/gofiber/fiber"
@@ -32,9 +32,11 @@ func main() {
 	app.Use(middleware.Logger())
 	app.Use(cors.New())
 
-	router.UserRoutes(app)
+	// User route
+	routers.UserRoutes(app)
 
-	app.Static("/", "./frontend/build")
+	// Serve static frontend build
+	// app.Static("/", "./frontend/build")
 
 	fmt.Printf("Server running on port %v\n", os.Getenv("PORT"))
 	app.Listen(os.Getenv("PORT"))
