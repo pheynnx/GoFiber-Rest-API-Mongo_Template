@@ -5,7 +5,7 @@
 - Setup environmental variables
 
 ```bash
-'go run server.go
+go run server.go
 ```
 
 ## Using 'air' for live reload:
