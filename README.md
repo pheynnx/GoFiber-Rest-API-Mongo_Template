@@ -1,8 +1,6 @@
-# Fiber_React-DEV
+# Template Golang Rest API (ready for full stack)
 
-## Template Golang Rest API (ready for full stack)
-
-Start:
+## Start:
 
 - Setup environmental variables
 
@@ -10,26 +8,26 @@ Start:
 'go run server.go
 ```
 
-Using 'air' for live reload:
+## Using 'air' for live reload:
 
 ```bash
 go get -u github.com/cosmtrek/air
 air
 ```
 
-Tools:
+## Tools:
 
 - Fiber
 - Gorm
 - Ready for full stack api
 
-Environmental Variables:
+## Environmental Variables:
 
 - ./config/config.env
 - PORT=
 - DATABASE=
 
-Frontend (full stack):
+## Frontend (full stack):
 
 - uncomment //app.Static("/", "PATH to build") in server.go (line 39)
 - adjusted path for your build location
