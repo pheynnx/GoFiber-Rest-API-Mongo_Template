@@ -71,7 +71,7 @@ func UpdateUser(c *fiber.Ctx) {
 		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
 		return
 	}
-
+	c.JSON(fiber.Map{"success": true, "data": foundUser})
 }
 
 // DeleteUser deletes user by id
