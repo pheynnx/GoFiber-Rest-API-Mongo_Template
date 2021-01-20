@@ -1,92 +1,152 @@
 package controllers
 
 import (
-	"ericarthurc/fiberAPI/database"
-	"ericarthurc/fiberAPI/models"
+	"fmt"
 
-	"github.com/gofiber/fiber"
+	"github.com/Ericarthurc/GoFiber-Rest-API-Mongo_Template/models"
+	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-// GetUsers get all users
-func GetUsers(c *fiber.Ctx) {
-	db := database.DB
-	var users []models.User
-	if err := db.Find(&users).Error; err != nil {
-		c.Status(500)
-		return
+/*
+GetUsers | @Desc: Get all users |
+@Method: GET |
+@Route: "api/v1/users" |
+@Auth: Public
+*/
+func GetUsers(c *fiber.Ctx) error {
+	filter := bson.D{{}}
+	cursor, err := models.UserCollection.Find(c.Context(), filter)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"success": false, "data": err})
 	}
-	c.JSON(&fiber.Map{
-		"success": true,
-		"data":    users,
-	})
+
+	var users []models.User = make([]models.User, 0)
+
+	if err := cursor.All(c.Context(), &users); err != nil {
+		fmt.Println(err)
+		return c.Status(500).JSON(fiber.Map{"success": false, "data": err})
+	}
+
+	return c.JSON(fiber.Map{"success": true, "data": users})
 }
 
-// GetUser get user by id
-func GetUser(c *fiber.Ctx) {
-	id := c.Params("id")
-	db := database.DB
-	var user models.User
-	if err := db.Find(&user, id).Error; err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
-
+/*
+GetUser | @Desc: Get user by id |
+@Method: GET |
+@Route: "api/v1/users/:id" |
+@Auth: Public
+*/
+func GetUser(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	userID, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": idParam + " is not a valid id!"})
 	}
-	c.JSON(fiber.Map{"success": true, "data": user})
+
+	filer := bson.D{{Key: "_id", Value: userID}}
+	userRecord := models.UserCollection.FindOne(c.Context(), filer)
+	if userRecord.Err() != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": "No user with id: " + idParam + " was found!"})
+	}
+
+	user := &models.User{}
+	userRecord.Decode(user)
+
+	return c.JSON(fiber.Map{"success": true, "data": user})
 }
 
-// CreateUser create user
-func CreateUser(c *fiber.Ctx) {
-	db := database.DB
+/*
+CreateUser | @Desc: Create new user |
+@Method: POST |
+@Route: "api/v1/users" |
+@Auth: Public
+*/
+func CreateUser(c *fiber.Ctx) error {
 	user := new(models.User)
 	if err := c.BodyParser(user); err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": err})
 	}
-	if err := db.Create(&user).Error; err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
-	}
-	c.JSON(fiber.Map{"success": true, "data": user})
 
+	insertionResult, err := models.UserCollection.InsertOne(c.Context(), user)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": err})
+	}
+
+	// get the just inserted record in order to return it as response
+	filter := bson.D{{Key: "_id", Value: insertionResult.InsertedID}}
+	createdRecord := models.UserCollection.FindOne(c.Context(), filter)
+
+	// decode the Mongo record into Employee
+	createdUser := &models.User{}
+	createdRecord.Decode(createdUser)
+
+	return c.JSON(fiber.Map{"success": true, "data": createdUser})
 }
 
-// UpdateUser update a user
-func UpdateUser(c *fiber.Ctx) {
-	id := c.Params("id")
-	db := database.DB
-
-	updatedUser := new(models.User)
-	if err := c.BodyParser(updatedUser); err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
+/*
+UpdateUser | @Desc: Update user by id |
+@Method: PATCH |
+@Route: "api/v1/users/:id" |
+@Auth: Private
+*/
+func UpdateUser(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	userID, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": idParam + " is not a valid id!"})
 	}
 
-	var foundUser models.User
-	if err := db.First(&foundUser, id).Error; err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
+	user := new(models.User)
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": err})
 	}
 
-	if err := db.Model(&foundUser).Select("Username", "Password").Updates(updatedUser).Error; err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
+	filter := bson.D{{Key: "_id", Value: userID}}
+	update := bson.D{
+		{Key: "$set",
+			Value: bson.D{
+				{Key: "name", Value: user.Name},
+				{Key: "age", Value: user.Email},
+			},
+		},
 	}
-	c.JSON(fiber.Map{"success": true, "data": foundUser})
+
+	after := options.After
+	userRecord := models.UserCollection.FindOneAndUpdate(c.Context(), filter, update, &options.FindOneAndUpdateOptions{
+		ReturnDocument: &after,
+	})
+
+	if userRecord.Err() != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": "No user with id: " + idParam + " was found!"})
+	}
+
+	updatedUser := &models.User{}
+	userRecord.Decode(updatedUser)
+
+	return c.JSON(fiber.Map{"success": true, "data": updatedUser})
 }
 
-// DeleteUser deletes user by id
-func DeleteUser(c *fiber.Ctx) {
-	id := c.Params("id")
-	db := database.DB
-	var user models.User
-	if err := db.First(&user, id).Error; err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
+/*
+DeleteUser | @Desc: Delete user by id |
+@Method: DELETE |
+@Route: "api/v1/users/:id" |
+@Auth: Private
+*/
+func DeleteUser(c *fiber.Ctx) error {
+	idParam := c.Params("id")
+	userID, err := primitive.ObjectIDFromHex(idParam)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": idParam + " is not a valid id!"})
 	}
 
-	if err := db.Delete(&user).Error; err != nil {
-		c.Status(500).JSON(fiber.Map{"success": false, "data": err})
-		return
+	filer := bson.D{{Key: "_id", Value: userID}}
+	userRecord := models.UserCollection.FindOneAndDelete(c.Context(), filer)
+	if userRecord.Err() != nil {
+		return c.Status(400).JSON(fiber.Map{"success": false, "data": "No user with id: " + idParam + " was found!"})
 	}
-	c.JSON(fiber.Map{"success": true})
+
+	return c.JSON(fiber.Map{"success": true, "data": "User was deleted!"})
 }

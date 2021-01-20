@@ -1,12 +1,11 @@
-package routers
+package routes
 
 import (
-	"ericarthurc/fiberAPI/controllers"
-
-	"github.com/gofiber/fiber"
+	"github.com/Ericarthurc/GoFiber-Rest-API-Mongo_Template/controllers"
+	"github.com/gofiber/fiber/v2"
 )
 
-// UserRoutes routes for /api/v1/users
+// UserRoutes | @desc: "/api/v1/users" api route
 func UserRoutes(app *fiber.App) {
 	users := app.Group("/api/v1/users")
 	users.Get("/", controllers.GetUsers)

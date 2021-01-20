@@ -4,42 +4,45 @@ import (
 	"fmt"
 	"os"
 
-	"ericarthurc/fiberAPI/database"
-	"ericarthurc/fiberAPI/routers"
-
-	"github.com/gofiber/cors"
-	"github.com/gofiber/fiber"
-	"github.com/gofiber/fiber/middleware"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/Ericarthurc/GoFiber-Rest-API-Mongo_Template/database"
+	"github.com/Ericarthurc/GoFiber-Rest-API-Mongo_Template/models"
+	"github.com/Ericarthurc/GoFiber-Rest-API-Mongo_Template/routes"
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
 )
 
 func main() {
-	// Load .env
+	// Load enviromental variables from config
 	godotenv.Load("./config/config.env")
 
-	// Connect to database
-	database.ConnectDB()
-
-	app := fiber.New(&fiber.Settings{
+	// Create new fiber instance
+	app := fiber.New(fiber.Config{
 		// Prefork:       true,
 		CaseSensitive: true,
 		StrictRouting: true,
 		ServerHeader:  "Fiber",
 	})
 
+	// Connect to database
+	database.Connect()
+	defer database.Cancel()
+	defer database.Client.Disconnect(database.Ctx)
+
+	// Create model schemas
+	models.CreateUserSchema()
+
 	// Middleware
-	app.Use(middleware.Logger())
+	app.Use(logger.New())
 	app.Use(cors.New())
 
-	// User route
-	routers.UserRoutes(app)
+	// Routes
+	routes.UserRoutes(app)
 
-	// Serve static frontend build
-	// app.Static("/", "./frontend/build")
+	app.Get("/", func(c *fiber.Ctx) error {
+		return c.SendString("Hello, World 👋!")
+	})
 
-	fmt.Printf("Server running on port %v\n", os.Getenv("PORT"))
-	app.Listen(os.Getenv("PORT"))
-
-	defer database.DB.Close()
+	app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT")))
 }

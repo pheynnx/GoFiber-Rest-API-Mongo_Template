@@ -1,32 +1,31 @@
-# Template Golang Rest API (ready for full stack)
+# GoFiber MongoDB Rest API Template
 
-## Start:
+### Demonstrates:
+- Full CRUD REST API
+- MongoDB native driver; no use of orm/odm
+- How to structure a production ready API (Model/Controller/Routes)
+- How to implement custom JSON schema validation (database/database.go)
+- How to implement custom collection indexes (database/database.go)
 
-#### Setup environmental variables
+### Start:
+- Make sure to setup environmental variables before running
 
+### Environmental Variables:
+#### File Path: ./config/config.env
+- PORT
+- MONGO_URI
+
+### Run server:
 ```bash
 go run server.go
 ```
 
-## Using 'air' for live reload:
-
+### Use fresh for hot reload:
 ```bash
-go get -u github.com/cosmtrek/air
-air
+go get github.com/pilu/fresh
+fresh
 ```
 
-## Tools:
-
-- Fiber
-- Gorm
-
-## Environmental Variables:
-
-- ./config/config.env
-- PORT=
-- DATABASE=
-
-## Frontend (full stack):
-
-- uncomment //app.Static("/", "PATH to build") in server.go (line 39)
-- adjusted path for your build location
+### Tools:
+- GoFiber v2
+- Mongo-driver
